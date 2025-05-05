@@ -12,8 +12,22 @@ EXPOSE 8000
 ARG ENV=prod
 RUN python -m venv /py && \
     /py/bin/pip install --upgrade pip && \
+    apk add --update --no-cache \
+        gcc \
+        musl-dev \
+        linux-headers \
+        libffi-dev \
+        libxml2-dev \
+        libxslt-dev \
+        postgresql-dev \
+        jpeg-dev \
+        zlib-dev && \
+    apk add --update --no-cache postgresql-client && \
+    apk add --update --no-cache --virtual .tmp-build-deps \
+            build-base postgresql-dev musl-dev && \
     /py/bin/pip install -r /tmp/requirements.${ENV}.txt && \
     rm -rf /tmp && \
+    apk del .tmp-build-deps && \
     adduser \
         --disabled-password \
         --no-create-home \
